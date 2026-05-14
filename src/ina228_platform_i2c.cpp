@@ -1,3 +1,11 @@
+/**
+ * @file ina228_platform_i2c.cpp
+ * @brief Platform-specific I2C helpers for the INA228 library.
+ *
+ * @copyright Copyright (c) 2026 Theo Heng
+ * @license MIT License. See LICENSE file for details.
+ */
+
 #include "ina228_platform_i2c.h"
 
 bool ina228_i2c_probe(bus_handle_t bus, uint8_t device_address)

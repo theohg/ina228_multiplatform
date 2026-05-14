@@ -1,14 +1,17 @@
-//    FILE: INA228.h
-//  AUTHOR: Rob Tillaart
-// VERSION: 1.0.0
-//    DATE: 2024-05-09
-// PURPOSE: Arduino library for the INA228, I2C, 20 bit, voltage, current and power sensor.
-//     URL: https://github.com/RobTillaart/INA228
-//          https://www.adafruit.com/product/5832           ( 10 A version)
-//          https://www.mateksys.com/?portfolio=i2c-ina-bm  (200 A version))
-//
-//
-//  Read the datasheet for the details
+/**
+ * @file ina228.h
+ * @brief Driver class for the TI INA228 current, voltage, power, energy, and charge monitor.
+ *
+ * Multiplatform adaptation and maintenance for this repository by Theo Heng.
+ * Based on prior INA228 and INA226 work by Rob Tillaart.
+ *
+ * @see https://www.ti.com/product/INA228
+ * @see https://github.com/RobTillaart/INA228
+ * @see https://github.com/RobTillaart/INA226
+ *
+ * @copyright Copyright (c) 2026 Theo Heng
+ * @license MIT License. See LICENSE file for details.
+ */
 
 #pragma once
 #include "ina228_platform_i2c.h"

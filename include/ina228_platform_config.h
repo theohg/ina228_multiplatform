@@ -1,6 +1,9 @@
 /**
  * @file ina228_platform_config.h
  * @brief Compile-time platform detection for the INA228 library.
+ *
+ * @copyright Copyright (c) 2026 Theo Heng
+ * @license MIT License. See LICENSE file for details.
  */
 
 #ifndef INA228_PLATFORM_CONFIG_H

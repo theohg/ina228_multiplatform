@@ -4,6 +4,9 @@
  *
  * @note Device addresses are always passed as 7-bit addresses.
  *       STM32 HAL shifts them internally; Arduino Wire and Pico SDK expect 7-bit.
+ *
+ * @copyright Copyright (c) 2026 Theo Heng
+ * @license MIT License. See LICENSE file for details.
  */
 
 #ifndef INA228_PLATFORM_I2C_H
