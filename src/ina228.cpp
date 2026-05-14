@@ -1,6 +1,6 @@
 //    FILE: INA228.cpp
 //  AUTHOR: Rob Tillaart
-// VERSION: 0.4.1
+// VERSION: 1.0.0
 //    DATE: 2024-05-09
 // PURPOSE: Arduino library for the INA228, I2C, 20 bit, voltage, current and power sensor.
 //     URL: https://github.com/RobTillaart/INA228
@@ -58,10 +58,10 @@
 //
 //  CONSTRUCTOR
 //
-INA228::INA228(uint8_t address, i2c_inst_t *i2c, float shuntResistor, float maxCurrent, uint16_t shuntTempCoPpm)
+INA228::INA228(bus_handle_t bus, uint8_t address, float shuntResistor, float maxCurrent, uint16_t shuntTempCoPpm)
 {
   _address          = address;
-  _i2c              = i2c;
+  _bus              = bus;
   _shunt            = shuntResistor;
   _maxCurrent       = maxCurrent;
   _overcurrentLimit = 0.0f;
@@ -97,11 +97,21 @@ bool INA228::init()
 
 bool INA228::isConnected()
 {
-  uint8_t rxdata;
-  // Attempt to read 1 byte to check for ACK. 
-  // Returns bytes read (positive) or error code (negative)
-  int ret = i2c_read_blocking(_i2c, _address, &rxdata, 1, false);
-  return (ret >= 0);
+  _error = 0;
+
+  if (_bus == NULL)
+  {
+    _error = -3;
+    return false;
+  }
+
+  if (ina228_i2c_probe(_bus, _address))
+  {
+    return true;
+  }
+
+  _error = -1;
+  return false;
 }
 
 
@@ -744,10 +754,14 @@ int INA228::getLastError()
 uint32_t INA228::_readRegister(uint8_t reg, uint8_t bytes)
 {
   _error = 0;
-  
-  // Write register pointer
-  int ret = i2c_write_blocking(_i2c, _address, &reg, 1, true); // true = no stop (repeated start)
-  if (ret < 0)
+
+  if (_bus == NULL)
+  {
+    _error = -3;
+    return 0;
+  }
+
+  if (!ina228_i2c_write_pointer(_bus, _address, reg))
   {
     _error = -1;
     return 0;
@@ -756,10 +770,7 @@ uint32_t INA228::_readRegister(uint8_t reg, uint8_t bytes)
   uint8_t buffer[8]; // Enough for largest register
   if (bytes > 8) bytes = 8; // Safety
 
-  // Read data
-  ret = i2c_read_blocking(_i2c, _address, buffer, bytes, false);
-  
-  if (ret < 0)
+  if (!ina228_i2c_read_data(_bus, _address, buffer, bytes))
   {
     _error = -2;
     return 0;
@@ -780,21 +791,22 @@ uint32_t INA228::_readRegister(uint8_t reg, uint8_t bytes)
 double INA228::_readRegisterF(uint8_t reg, char mode)
 {
   _error = 0;
-  
-  // Write register pointer
-  int ret = i2c_write_blocking(_i2c, _address, &reg, 1, true);
-  if (ret < 0)
+
+  if (_bus == NULL)
+  {
+    _error = -3;
+    return 0;
+  }
+
+  if (!ina228_i2c_write_pointer(_bus, _address, reg))
   {
     _error = -1;
     return 0;
   }
 
   uint8_t buffer[5];
-  
-  // Read 5 bytes
-  ret = i2c_read_blocking(_i2c, _address, buffer, 5, false);
 
-  if (ret < 0)
+  if (!ina228_i2c_read_data(_bus, _address, buffer, 5))
   {
     _error = -2;
     return 0;
@@ -826,18 +838,17 @@ double INA228::_readRegisterF(uint8_t reg, char mode)
 
 uint16_t INA228::_writeRegister(uint8_t reg, uint16_t value)
 {
-  uint8_t buffer[3];
-  buffer[0] = reg;
-  buffer[1] = (uint8_t)(value >> 8);
-  buffer[2] = (uint8_t)(value & 0xFF);
+  if (_bus == NULL)
+  {
+    _error = -3;
+    return 1;
+  }
 
-  // i2c_write_blocking returns number of bytes written or error code
-  int n = i2c_write_blocking(_i2c, _address, buffer, 3, false);
-  
-  if (n != 3)
+  if (!ina228_i2c_write_register16(_bus, _address, reg, value))
   {
     _error = -1;
     return 1; // Return non-zero to indicate failure, matching original API spirit
   }
+  _error = 0;
   return 0; // Success
 }

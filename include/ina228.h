@@ -1,6 +1,6 @@
 //    FILE: INA228.h
 //  AUTHOR: Rob Tillaart
-// VERSION: 0.4.1
+// VERSION: 1.0.0
 //    DATE: 2024-05-09
 // PURPOSE: Arduino library for the INA228, I2C, 20 bit, voltage, current and power sensor.
 //     URL: https://github.com/RobTillaart/INA228
@@ -11,9 +11,9 @@
 //  Read the datasheet for the details
 
 #pragma once
-#include "hardware/i2c.h"
+#include "ina228_platform_i2c.h"
 
-#define INA228_LIB_VERSION          ("0.4.1")
+#define INA228_LIB_VERSION          ("1.0.0")
 
 
 //  for setMode() and getMode()
@@ -92,12 +92,12 @@ public:
   //  address between 0x40 and 0x4F
   /**
    * @brief Constructor with full configuration
+    * @param bus Platform-specific I2C bus handle
    * @param address I2C address (0x40-0x4F)
-   * @param i2c I2C instance (i2c0 or i2c1)
    * @param shuntResistor Shunt resistor value in Ohms (e.g., 0.008 for 8mΩ)
    * @param maxCurrent Maximum expected current in Amps (e.g., 5.0)
    */
-  INA228(uint8_t address, i2c_inst_t *i2c, float shuntResistor, float maxCurrent, uint16_t shuntTempCoPpm = 0);
+    INA228(bus_handle_t bus, uint8_t address, float shuntResistor, float maxCurrent, uint16_t shuntTempCoPpm = 0);
 
   bool     init();
   bool     isConnected();
@@ -310,7 +310,7 @@ private:
   bool     _ADCRange;
 
   uint8_t   _address;
-  i2c_inst_t * _i2c;
+  bus_handle_t _bus;
 
   int       _error;
 };
