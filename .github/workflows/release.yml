@@ -6,19 +6,23 @@ on:
       - 'v*'
 
 jobs:
+  # Run CI tests before releasing
   ci:
     uses: ./.github/workflows/ci.yml
 
+  # Create release only if CI passes
   release:
     needs: ci
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Get Version
+      - name: Get version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
@@ -32,9 +36,9 @@ jobs:
         with:
           name: "INA228 Library ${{ steps.version.outputs.VERSION }}"
           body: |
-            ## INA228 Multiplatform Library ${{ steps.version.outputs.VERSION }}
+            ## INA228 Power Monitor Library ${{ steps.version.outputs.VERSION }}
 
-            C++ library for the TI INA228 current, voltage, power, energy, and charge monitor over I2C.
+            C++ library for the TI INA228 current, voltage, power, energy, and charge monitor via I2C.
 
             ### Supported Platforms
             - Arduino / ESP32 (Wire)
@@ -54,17 +58,24 @@ jobs:
                 https://github.com/theohg/ina228_multiplatform.git#${{ steps.version.outputs.VERSION }}
             ```
 
+            Or download the zip and place in your project's `lib/` directory.
+
             #### Arduino IDE
             1. Download `ina228_multiplatform-${{ steps.version.outputs.VERSION }}.zip`
-            2. Sketch -> Include Library -> Add .ZIP Library
+            2. In Arduino IDE: Sketch → Include Library → Add .ZIP Library
             3. Select the downloaded zip file
 
             ### Examples
-            - `basic_monitoring`
-            - `alert_monitoring`
+            - `basic_monitoring` - Voltage, current, power, and temperature readings
+            - `alert_monitoring` - Threshold alerts and overcurrent protection
 
-            Full documentation: https://github.com/${{ github.repository }}
+            See the `examples/` folder for complete code.
+
+            ### Documentation
+            Full documentation at https://github.com/${{ github.repository }}
           files: |
             ina228_multiplatform-*.zip
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

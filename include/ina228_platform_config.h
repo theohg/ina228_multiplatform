@@ -2,6 +2,9 @@
  * @file ina228_platform_config.h
  * @brief Compile-time platform detection for the INA228 library.
  *
+ * Automatically detects the target platform (Arduino/ESP32 or STM32) via
+ * preprocessor macros and includes the appropriate system headers.
+ *
  * @copyright Copyright (c) 2026 Theo Heng
  * @license MIT License. See LICENSE file for details.
  */
@@ -27,6 +30,8 @@
     #include <math.h>
     #include <string.h>
 
+    /* Auto-detect STM32 family HAL header, or override via build flag:
+       -DINA228_STM32_HAL_HEADER='"stm32f4xx_hal.h"'                    */
     #if defined(INA228_STM32_HAL_HEADER)
         #include INA228_STM32_HAL_HEADER
     #elif defined(STM32C0xx)
